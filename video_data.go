@@ -53,53 +53,22 @@ const (
 )
 
 func AVCodecID2VideoCodecID(id utils.AVCodecID) (VideoCodecID, error) {
-	switch id {
-	case utils.AVCodecIdFLV1:
-		return VideoCodecIDH263, nil
-	case utils.AVCodecIdFLASHSV:
-		return VideoCodecIDSCREEN, nil
-	case utils.AVCodecIdVP6F:
-		return VideoCodecIDVP6, nil
-	case utils.AVCodecIdVP6A:
-		return VideoCodecIDVP6Alpha, nil
-	case utils.AVCodecIdFLASHSV2:
-		return VideoCodecIDScreenV2, nil
-	case utils.AVCodecIdH264:
-		return VideoCodecIDAVC, nil
-	case utils.AVCodecIdAV1:
-		return VideoCodecIDAV1, nil
-	case utils.AVCodecIdVP9:
-		return VideoCodecIDVP9, nil
-	case utils.AVCodecIdHEVC:
-		return VideoCodecIDHEVC, nil
-	default:
+	flvCodec, ok := SupportedCodecs[id]
+	if !ok {
 		return -1, fmt.Errorf("unsupported video codec: %v", id)
 	}
+
+	return flvCodec.(VideoCodecID), nil
 }
 
 func VideoCodecID2AVCodecID(id VideoCodecID) (utils.AVCodecID, error) {
-	switch id {
-	case VideoCodecIDH263:
-		return utils.AVCodecIdFLV1, nil
-	case VideoCodecIDSCREEN:
-		return utils.AVCodecIdFLASHSV, nil
-	case VideoCodecIDVP6:
-		return utils.AVCodecIdVP6F, nil
-	case VideoCodecIDVP6Alpha:
-		return utils.AVCodecIdVP6A, nil
-	case VideoCodecIDScreenV2:
-		return utils.AVCodecIdFLASHSV2, nil
-	case VideoCodecIDAVC:
-		return utils.AVCodecIdH264, nil
-	case VideoCodecIDAV1:
-		return utils.AVCodecIdAV1, nil
-	case VideoCodecIDVP9:
-		return utils.AVCodecIdVP9, nil
-	case VideoCodecIDHEVC:
-		return utils.AVCodecIdHEVC, nil
-	default:
-		return utils.AVCodecIdNONE, fmt.Errorf("unknow video codec: %d", id)
+	for avCodec, flvCodec := range SupportedCodecs {
+		if flvCodec == id {
+			return avCodec, nil
+		}
 	}
+
+	return utils.AVCodecIdNONE, fmt.Errorf("unknow video codec: %d", id)
 }
 
 type VideoData struct {

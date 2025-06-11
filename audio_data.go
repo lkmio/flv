@@ -82,72 +82,51 @@ func (a *AudioData) Unmarshal(data []byte) ([]byte, bool, error) {
 }
 
 func AVCodecID2SoundFormat(id utils.AVCodecID, sampleRate int) (SoundFormat, error) {
-	switch id {
-	case utils.AVCodecIdPCMU8:
-		return SoundFormatPCMLittle, nil
-	case utils.AVCodecIdPCMS16LE:
-		return SoundFormatPCMLittle, nil
-	case utils.AVCodecIdADPCMSWF:
-		return SoundFormatADPCM, nil
-	case utils.AVCodecIdMP3:
-		return SoundFormatMP3, nil
-	case utils.AVCodecIdNELLYMOSER:
-		if 8000 == sampleRate {
-			return SoundFormatNELLYMOSER8KHZMono, nil
-		} else if 16000 == sampleRate {
-			return SoundFormatNELLYMOSER16KHZMono, nil
-		} else {
-			return SoundFormatNELLYMOSER, nil
-		}
-	case utils.AVCodecIdPCMALAW:
-		return SoundFormatG711A, nil
-	case utils.AVCodecIdPCMMULAW:
-		return SoundFormatG711B, nil
-	case utils.AVCodecIdAAC:
-		return SoundFormatAAC, nil
-	case utils.AVCodecIdSPEEX:
-		return SoundFormatSpeex, nil
-	default:
+	soundFormat, ok := SupportedCodecs[id]
+	if !ok {
 		return SoundFormat(-1), fmt.Errorf("unsupported audio codec: %v", id)
+	} else if utils.AVCodecIdNELLYMOSER == soundFormat {
+		if 8000 == sampleRate {
+			soundFormat = SoundFormatNELLYMOSER8KHZMono
+		} else if 16000 == sampleRate {
+			soundFormat = SoundFormatNELLYMOSER16KHZMono
+		} else {
+			soundFormat = SoundFormatNELLYMOSER
+		}
 	}
+
+	return soundFormat.(SoundFormat), nil
 }
 
 func SoundFormat2AVCodecID(format SoundFormat, sampleSize int) (utils.AVCodecID, error) {
-	switch format {
-	case SoundFormatPCMPlatform:
-		if sampleSize == 8000 {
-			return utils.AVCodecIdPCMU8, nil
-		} else {
-			//id = utils.AVCodecIdPCMS16BE
-			return utils.AVCodecIdPCMS16LE, nil
+	for avCodec, flvCodec := range SupportedCodecs {
+		if flvCodec != format {
+			continue
 		}
-	case SoundFormatADPCM:
-		return utils.AVCodecIdADPCMSWF, nil
-	case SoundFormatMP3:
-		return utils.AVCodecIdMP3, nil
-	case SoundFormatPCMLittle:
-		if sampleSize == 8000 {
-			return utils.AVCodecIdPCMU8, nil
-		} else {
-			return utils.AVCodecIdPCMS16LE, nil
+
+		if SoundFormatPCMPlatform == format {
+			if sampleSize == 8000 {
+				return utils.AVCodecIdPCMU8, nil
+			} else {
+				//id = utils.AVCodecIdPCMS16BE
+				return utils.AVCodecIdPCMS16LE, nil
+			}
+		} else if SoundFormatPCMLittle == format {
+			if sampleSize == 8000 {
+				return utils.AVCodecIdPCMU8, nil
+			} else {
+				return utils.AVCodecIdPCMS16LE, nil
+			}
 		}
-	case SoundFormatNELLYMOSER16KHZMono, SoundFormatNELLYMOSER8KHZMono, SoundFormatNELLYMOSER:
-		return utils.AVCodecIdNELLYMOSER, nil
-	case SoundFormatG711A:
-		return utils.AVCodecIdPCMALAW, nil
-	case SoundFormatG711B:
-		return utils.AVCodecIdPCMMULAW, nil
-	case SoundFormatAAC:
-		return utils.AVCodecIdAAC, nil
-	case SoundFormatSpeex:
-		return utils.AVCodecIdSPEEX, nil
-	//case SoundFormatMP38K:
-	//	break
-	//case SoundFormatExHeader:
-	//	break
-	default:
-		return utils.AVCodecIdNONE, fmt.Errorf("unknow sound format: %d", format)
+
+		return avCodec, nil
 	}
+
+	if SoundFormatNELLYMOSER16KHZMono == format || SoundFormatNELLYMOSER8KHZMono == format || SoundFormatNELLYMOSER == format {
+		return utils.AVCodecIdNELLYMOSER, nil
+	}
+
+	return utils.AVCodecIdNONE, fmt.Errorf("unknow sound format: %d", format)
 }
 
 func GetSampleRate(rate int) int {

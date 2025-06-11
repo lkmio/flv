@@ -10,6 +10,31 @@ import (
 	"time"
 )
 
+var (
+	SupportedCodecs = map[utils.AVCodecID]interface{}{
+		utils.AVCodecIdPCMU8:      SoundFormatPCMLittle,
+		utils.AVCodecIdPCMS16LE:   SoundFormatPCMLittle,
+		utils.AVCodecIdPCMS16BE:   SoundFormatPCMLittle,
+		utils.AVCodecIdADPCMSWF:   SoundFormatADPCM,
+		utils.AVCodecIdMP3:        SoundFormatMP3,
+		utils.AVCodecIdNELLYMOSER: SoundFormatNELLYMOSER8KHZMono,
+		utils.AVCodecIdPCMALAW:    SoundFormatG711A,
+		utils.AVCodecIdPCMMULAW:   SoundFormatG711B,
+		utils.AVCodecIdAAC:        SoundFormatAAC,
+		utils.AVCodecIdSPEEX:      SoundFormatSpeex,
+
+		utils.AVCodecIdFLV1:     VideoCodecIDH263,
+		utils.AVCodecIdFLASHSV:  VideoCodecIDSCREEN,
+		utils.AVCodecIdVP6F:     VideoCodecIDVP6,
+		utils.AVCodecIdVP6A:     VideoCodecIDVP6Alpha,
+		utils.AVCodecIdFLASHSV2: VideoCodecIDScreenV2,
+		utils.AVCodecIdH264:     VideoCodecIDAVC,
+		utils.AVCodecIdAV1:      VideoCodecIDAV1,
+		utils.AVCodecIdVP9:      VideoCodecIDVP9,
+		utils.AVCodecIdHEVC:     VideoCodecIDHEVC,
+	}
+)
+
 type Muxer struct {
 	avformat.BaseMuxer
 	metaData    *amf0.Object
