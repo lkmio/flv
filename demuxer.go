@@ -80,7 +80,7 @@ func (d *Demuxer) readTagData(data []byte) int {
 
 func (d *Demuxer) processTag() error {
 	index := d.BaseDemuxer.FindBufferIndexByMediaType(TagType2AVMediaType(d.tag.Type))
-	bytes, _ := d.BaseDemuxer.DataPipeline.Feat(index)
+	bytes, _ := d.BaseDemuxer.DataPipeline.Fetch(index)
 
 	var err error
 	var discard bool
